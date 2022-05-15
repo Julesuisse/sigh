@@ -430,5 +430,58 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         failureInputWith(input3, "Trying to assign a value to a non-compatible lvalue.");
     }
 
+    @Test public void testBoxAttributeOperation() {
+        String input = "" +
+            "box MyBox {\n" +
+            "   attr height: Int\n" +
+            "   attr width: Int\n" +
+            "   attr depth: Int\n" +
+            "   meth assignSizes(h: Int, w: Int, d: Int) {\n" +
+            "       height = h\n" +
+            "       width  = w\n" +
+            "       depth  = d\n" +
+            "   }\n" +
+            "}\n" +
+            "var myBox: MyBox = create MyBox()\n" +
+            "myBox#assignSizes(2, 2, 2)\n" +
+            "return myBox#height * myBox#width * myBox#depth";
+
+        successInput(input);
+
+        input = "" +
+            "box MyBox {\n" +
+            "   attr height: String\n" +
+            "   attr width: Int\n" +
+            "   meth assignSizes(h: String, w: Int) {\n" +
+            "       height = h\n" +
+            "       width  = w\n" +
+            "   }\n" +
+            "}\n" +
+            "var myBox: MyBox = create MyBox()\n" +
+            "myBox#assignSizes(\"Two\", 2)\n" +
+            "return myBox#height * myBox#width";
+
+        failureInputWith(input, "Trying to multiply String with Int");
+    }
+
+    @Test public void testAttributesScope() {
+        String input = "" +
+            "box Car {\n" +
+            "   attr nWheels: Int\n" +
+            "}\n" +
+            "var copy: Int = nWheels";
+
+        failureInputWith(input, "Could not resolve: nWheels");
+
+        input = "" +
+            "box Car {\n" +
+            "   attr nWheels: Int\n" +
+            "   meth getNWheels(): Int {\n" +
+            "       return nWheels\n" +
+            "   }\n" +
+            "}\n";
+        successInput(input);
+    }
+
     // ---------------------------------------------------------------------------------------------
 }

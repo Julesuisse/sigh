@@ -144,7 +144,8 @@ public final class SemanticAnalysis
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
         walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
-        walker.register(MethodDeclarationNode.class,       POST_VISIT, analysis::popScope);
+        walker.register(MethodDeclarationNode.class,    POST_VISIT, analysis::popScope);
+        walker.register(BoxDeclarationNode.class,       POST_VISIT, analysis::popScope);
 
         // statements
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
@@ -449,12 +450,12 @@ public final class SemanticAnalysis
                     return;
                 }
 
-                for (DeclarationNode attribute: decl.methods)
+                for (DeclarationNode method: decl.methods)
                 {
-                    if (!attribute.name().equals(node.elementName)) continue;
+                    if (!method.name().equals(node.elementName)) continue;
 
                     R.rule(node, "type")
-                        .using(attribute, "type")
+                        .using(method, "type")
                         .by(Rule::copyFirst);
 
                     return;
@@ -856,10 +857,8 @@ public final class SemanticAnalysis
 
     private void attrDecl (AttributeDeclarationNode node)
     {
-        this.inferenceContext = node;
-
-        scope.declare(node.name, node);
         R.set(node, "scope", scope);
+        scope.declare(node.name, node);
 
         R.rule(node, "type")
             .using(node.type, "value")
@@ -967,6 +966,9 @@ public final class SemanticAnalysis
         scope.declare(node.name, node);
         R.set(node, "type", TypeType.INSTANCE);
         R.set(node, "declared", new BoxType(node));
+
+        scope = new Scope(node, scope);
+        R.set(node, "scope", scope);
     }
 
     // endregion
