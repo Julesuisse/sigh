@@ -357,19 +357,31 @@ public final class InterpreterTests extends TestFixture {
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-/*    @Test public void testAttributesBox()
+    @Test public void testAttributesBox()
     {
         rule = grammar.root;
 
         String input = "" +
             "box MyBox {\n" +
             "   attr name: String\n" +
+            "}\n" +
+            "var myBox: MyBox = create MyBox()\n" +
+            "myBox#name = \"papers\"\n" +
+            "return myBox#name";
+        check(input, "papers");
+
+        input = "" +
+            "box MyBox {\n" +
             "   attr height: Int\n" +
             "   attr width: Int\n" +
             "   attr depth: Int\n" +
             "}\n" +
-            "var myBox: MyBox = create MyBox()\n";
-        check(input, null);
+            "var myBox: MyBox = create MyBox()\n" +
+            "myBox#height = 2\n" +
+            "myBox#width  = 2\n" +
+            "myBox#depth  = 2\n" +
+            "return myBox#height * myBox#width * myBox#depth";
+        check(input, 8L);
     }
 
     @Test public void testMethodsBox()
@@ -377,15 +389,39 @@ public final class InterpreterTests extends TestFixture {
         rule = grammar.root;
 
         String input = "" +
-            "box myBox {\n" +
+            "box MyBox {\n" +
             "   meth getMaterial(): String {\n" +
             "       return \"craft\"\n" +
             "   }\n" +
-            "   meth getSize(): Int[] {\n" +
-            "       return \n" +
+            "   meth getSize(): Int {\n" +
+            "       return 8\n" +
             "   }\n" +
-            "}\n";
-    }*/
+            "}\n" +
+            "var myBox: MyBox = create MyBox()\n" +
+            "return myBox#getMaterial()\n";
+        check(input, "craft");
+    }
+
+    @Test public void testMixAttributesMethods()
+    {
+        rule = grammar.root;
+
+        String input = "" +
+            "box MyBox {\n" +
+            "   attr height: Int\n" +
+            "   attr width: Int\n" +
+            "   attr depth: Int\n" +
+            "   meth assignSizes(h: Int, w: Int, d: Int) {\n" +
+            "       height = h\n" +
+            "       width  = w\n" +
+            "       depth  = d\n" +
+            "   }\n" +
+            "}\n" +
+            "var myBox: MyBox = create MyBox()\n" +
+            "myBox#assignSizes(2, 2, 2)\n" +
+            "return myBox#height * myBox#width * myBox#depth";
+        check(input, 8L);
+    }
 
     // ---------------------------------------------------------------------------------------------
 

@@ -451,17 +451,32 @@ public final class Interpreter
         Scope scope = reactor.get(decl, "scope");
         storage = new ScopeStorage(scope, storage);
 
-        FunDeclarationNode funDecl = (FunDeclarationNode) decl;
-        coIterate(args, funDecl.parameters,
-            (arg, param) -> storage.set(scope, param.name, arg));
+        if (decl instanceof FunDeclarationNode) {
+            FunDeclarationNode funDecl = (FunDeclarationNode) decl;
+            coIterate(args, funDecl.parameters,
+                (arg, param) -> storage.set(scope, param.name, arg));
 
-        try {
-            get(funDecl.block);
-        } catch (Return r) {
-            return r.value;
-        } finally {
-            storage = oldStorage;
+            try {
+                get(funDecl.block);
+            } catch (Return r) {
+                return r.value;
+            } finally {
+                storage = oldStorage;
+            }
+        } else if (decl instanceof MethodDeclarationNode) {
+            MethodDeclarationNode methDecl = (MethodDeclarationNode) decl;
+            coIterate(args, methDecl.parameters,
+                (arg, param) -> storage.set(scope, param.name, arg));
+
+            try {
+                get(methDecl.block);
+            } catch (Return r) {
+                return r.value;
+            } finally {
+                storage = oldStorage;
+            }
         }
+
         return null;
     }
 

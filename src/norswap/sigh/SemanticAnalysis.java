@@ -144,6 +144,7 @@ public final class SemanticAnalysis
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
         walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
+        walker.register(MethodDeclarationNode.class,       POST_VISIT, analysis::popScope);
 
         // statements
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
@@ -966,8 +967,6 @@ public final class SemanticAnalysis
         scope.declare(node.name, node);
         R.set(node, "type", TypeType.INSTANCE);
         R.set(node, "declared", new BoxType(node));
-        scope = new Scope(node, scope);
-        R.set(node, "scope", scope);
     }
 
     // endregion
@@ -1007,38 +1006,6 @@ public final class SemanticAnalysis
     }
 
     // ---------------------------------------------------------------------------------------------
-
-    /*private void returnStmtMethod (ReturnNode node)
-    {
-        R.set(node, "returns", true);
-
-        MethodDeclarationNode method = currentMethod();
-        if (method == null) // top-level return
-            return;
-
-        if (node.expression == null)
-            R.rule()
-                .using(method.returnType, "value")
-                .by(r -> {
-                    Type returnType = r.get(0);
-                    if (!(returnType instanceof VoidType))
-                        r.error("Return without value in a function with a return type.", node);
-                });
-        else
-            R.rule()
-                .using(method.returnType.attr("value"), node.expression.attr("type"))
-                .by(r -> {
-                    Type formal = r.get(0);
-                    Type actual = r.get(1);
-                    if (formal instanceof VoidType)
-                        r.error("Return with value in a Void function.", node);
-                    else if (!isAssignableTo(actual, formal)) {
-                        r.errorFor(format(
-                                "Incompatible return type, expected %s but got %s", formal, actual),
-                            node.expression);
-                    }
-                });
-    }*/
 
     private void returnStmt (ReturnNode node)
     {
