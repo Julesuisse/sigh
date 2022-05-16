@@ -483,5 +483,80 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput(input);
     }
 
+    /*
+    * We cannot access a box attribute with the notation of a struct
+    * It must be a '#' instead of a '.'
+    * */
+    @Test public void testAttributeAccess()
+    {
+        String input = "" +
+            "box BadBox {\n" +
+            "   attr youWontGetMe: Int\n" +
+            "}\n" +
+            "var badBox: BadBox = create BadBox()\n" +
+            "var _: Int = badBox.youWontGetMe";
+
+        failureInputWith(input, "Trying to access a field on an expression of type BadBox");
+
+        input = "" +
+            "box BadBox {\n" +
+            "   attr youWillGetMe: Int\n" +
+            "}\n" +
+            "var badBox: BadBox = create BadBox()\n" +
+            "var _: Int = badBox#youWillGetMe";
+
+        successInput(input);
+    }
+
+    /*
+    * The box type must match an existing type
+    * */
+    @Test public void testDeclareUnknownBox() {
+        String input = "" +
+            "box GoodBox {  }\n" +
+            "var goodBox: BadBox = create GoodBox()";
+
+        failureInputWith(input, "could not resolve: BadBox");
+    }
+
+    /*
+    * The box type must match the correct type
+    * */
+    @Test public void testAssignWrongBoxType() {
+        String input = "" +
+            "box GoodBox {  }\n" +
+            "box BadBox {  }\n" +
+            "var goodBox: BadBox = create GoodBox()";
+
+        failureInputWith(input, "incompatible initializer type provided for variable `goodBox`: expected BadBox but got GoodBox");
+    }
+
+    /*
+    * We can pass boxes as arguments of a function and use its elements
+    * */
+    @Test public void testBoxAsArgument() {
+        String input = "" +
+            "box Box {\n" +
+            "   attr volume: Int\n" +
+            "   meth getVolume(): Int {\n" +
+            "       return volume\n" +
+            "   }\n" +
+            "}\n" +
+            // Get the attribute directly
+            "fun f(wineBox: Box): Int {\n" +
+            "   return wineBox#volume\n" +
+            "}\n" +
+            // Ask the getter function to return the attribute
+            "fun g(wineBox: Box): Int {\n" +
+            "   return wineBox#getVolume()\n" +
+            "}\n" +
+            "var wineBox: Box = create Box()\n" +
+            "wineBox#volume = 5\n" +
+            "f(wineBox)\n" +
+            "g(wineBox)\n";
+
+        successInput(input);
+    }
+
     // ---------------------------------------------------------------------------------------------
 }
