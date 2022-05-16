@@ -17,16 +17,13 @@ import static norswap.utils.Util.cast;
 public final class Test
 {
     public static void main (String[] args) {
-//        String file = "fizzbuzz.si";
-//        String file = "kitchensink.si";
-//        String file = "debug.si";
-//        String file = "Car.si";
+        //String file = "fizzbuzz.si";
+        //String file = "kitchensink.si";
+
+        // Set the file you want to try here
+        //String file = "Car.si";
         String file = "boxArrays.si";
-//        String file = "draft.si";
-//        String file = "Struct.si";
-        /*
-        * Todo: main problem now is to deal with the scopes of the variables in the classes
-        * */
+
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);
         SighGrammar grammar = new SighGrammar();
