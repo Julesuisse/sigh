@@ -147,6 +147,9 @@ public class GrammarTests extends AutumnTestFixture {
      *                                                                                             *
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+    /*
+    * Simple test to shox that we can declare boxes just like we do with the structs
+    * */
     @Test public void testMultipleStruct() {
         rule = grammar.root;
 
@@ -178,6 +181,9 @@ public class GrammarTests extends AutumnTestFixture {
         ));
     }
 
+    /*
+    * Check that we can resolve an attribute declaration inside a method of the box
+    * */
     @Test public void testAttributesInMethod() {
         rule = grammar.statement;
 
@@ -197,9 +203,9 @@ public class GrammarTests extends AutumnTestFixture {
             )));
     }
 
-    /**
-     * Show that we can state the elements of a box in the order we want, and we can mix attributes
-     * and methods together
+    /*
+     * Show that we can state the elements of a box in the order we want,
+     * and we can mix attributes and methods together
      * */
     @Test public void testBoxShuffleElements() {
         rule = grammar.statement;
@@ -222,8 +228,8 @@ public class GrammarTests extends AutumnTestFixture {
         )));
     }
 
-    /**
-     * Show that we can use other boxes types inside our box
+    /*
+     * Show that we can use other boxes types inside our box and return and use its elements
      * */
     @Test public void testBoxForeignBoxes() {
         rule = grammar.statement;
@@ -251,8 +257,8 @@ public class GrammarTests extends AutumnTestFixture {
         )));
     }
 
-            /*
-     * Big example that works in our grammar.
+    /*
+     * A bigger example that shows a more concrete declaration of a box
      * It uses basic attributes, arrays, other boxes
      * Access other boxes attributes and methods
      * */
