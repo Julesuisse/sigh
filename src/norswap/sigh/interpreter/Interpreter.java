@@ -293,6 +293,7 @@ public final class Interpreter
         }
 
         if (node.left instanceof BoxElementAccessNode) {
+            // TODO this should change the value in the scope instead of the current way
             BoxElementAccessNode boxAccess = (BoxElementAccessNode) node.left;
             Object object = get(boxAccess.stem);
             if (object == Null.INSTANCE)
@@ -418,7 +419,9 @@ public final class Interpreter
 
     private Object boxElementAccess (BoxElementAccessNode node)
     {
+        // TODO this should look in the scope to find the value
         Object stem = get(node.stem);
+        System.out.println(storage.scope);
         if (stem == Null.INSTANCE)
             throw new PassthroughException(
                 new NullPointerException("accessing attribute of null object"));
@@ -526,11 +529,14 @@ public final class Interpreter
 
     private HashMap<String, Object> buildBox (BoxDeclarationNode node, Object[] args)
     {
+        Scope scope = reactor.get(node, "scope");
+        storage = new ScopeStorage(scope, storage);
         HashMap<String, Object> box = new HashMap<>();
         for (int i = 0; i < node.attributes.size(); ++i)
             box.put(node.attributes.get(i).name, node.attributes.get(i));
         for (int i = 0; i < node.methods.size(); ++i)
             box.put(node.methods.get(i).name, node.methods.get(i));
+        storage = storage.parent;
         return box;
     }
 
@@ -569,7 +575,7 @@ public final class Interpreter
                 ? rootStorage.get(scope, node.name)
                 : storage.get(scope, node.name);
 
-        return decl; // structure or function
+        return decl; // structure, box or function
     }
 
     // ---------------------------------------------------------------------------------------------
