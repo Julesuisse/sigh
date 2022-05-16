@@ -20,8 +20,9 @@ public final class Test
 //        String file = "fizzbuzz.si";
 //        String file = "kitchensink.si";
 //        String file = "debug.si";
-                String file = "draft.si";
-//                String file = "draft.si";
+//        String file = "Car.si";
+        String file = "boxArrays.si";
+//        String file = "draft.si";
 //        String file = "Struct.si";
         /*
         * Todo: main problem now is to deal with the scopes of the variables in the classes

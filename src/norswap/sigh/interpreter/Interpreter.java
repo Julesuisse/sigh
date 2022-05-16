@@ -421,7 +421,6 @@ public final class Interpreter
     {
         // TODO this should look in the scope to find the value
         Object stem = get(node.stem);
-        System.out.println(storage.scope);
         if (stem == Null.INSTANCE)
             throw new PassthroughException(
                 new NullPointerException("accessing attribute of null object"));

@@ -1,0 +1,37 @@
+box Box {
+    attr height: Int
+    attr width : Int
+    attr depth : Int
+    meth getVolume(h: Int, w: Int, d: Int): Int {
+        return h * w * d
+    }
+}
+
+var box0: Box = create Box()
+var box1: Box = create Box()
+var box2: Box = create Box()
+var box3: Box = create Box()
+
+var boxes: Box[] = [box0, box1, box2, box3]
+
+var i    : Int = 0
+var value: Int = 87451523
+
+while i < boxes.length {
+    boxes[i]#height = value % (i+845)
+    boxes[i]#width  = value % (i+123)
+    boxes[i]#depth  = value % (i+485)
+    i = i + 1
+}
+
+i = 0
+var totalVolume: Int = 0
+while i < boxes.length {
+    totalVolume = totalVolume + boxes[i]#getVolume(boxes[i]#height, boxes[i]#width, boxes[i]#depth)
+    i = i + 1
+}
+
+if totalVolume < 50000000
+    print("Total volume is less than 50.000.000")
+else
+    print("Total volume is " + totalVolume)

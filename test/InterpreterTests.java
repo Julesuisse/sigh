@@ -5,10 +5,14 @@ import norswap.autumn.ParseResult;
 import norswap.autumn.positions.LineMapString;
 import norswap.sigh.SemanticAnalysis;
 import norswap.sigh.SighGrammar;
+import norswap.sigh.ast.AttributeDeclarationNode;
+import norswap.sigh.ast.BoxDeclarationNode;
 import norswap.sigh.ast.SighNode;
+import norswap.sigh.ast.SimpleTypeNode;
 import norswap.sigh.interpreter.Interpreter;
 import norswap.sigh.interpreter.InterpreterException;
 import norswap.sigh.interpreter.Null;
+import norswap.sigh.types.BoxType;
 import norswap.uranium.Reactor;
 import norswap.uranium.SemanticError;
 import norswap.utils.IO;
@@ -358,7 +362,10 @@ public final class InterpreterTests extends TestFixture {
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-    @Test public void testAttributesBox()
+    /*
+    * The attributes can be assigned and thier value retrieved in all kind of combinations
+    * */
+    @Test public void testBoxAttributes()
     {
         rule = grammar.root;
 
@@ -385,12 +392,12 @@ public final class InterpreterTests extends TestFixture {
         check(input, 8L);
     }
 
-    @Test public void testMethodsBox()
+    /*
+     * The methods of a class work properly
+     * */
+    @Test public void testBoxMethods()
     {
         rule = grammar.root;
-        /*
-        * The methods of a class work properly with all kind of types
-        * */
 
         String input = "" +
             "box MyBox {\n" +
@@ -419,12 +426,15 @@ public final class InterpreterTests extends TestFixture {
         check(input, 8L);
     }
 
+    /*
+    * Some tests showing the limitations of our scope handling
+    * */
     @Test public void testBoxAssignValues()
     {
         rule = grammar.root;
         /* We have problems with the scopes inside a box
         * In fact the first test will throw a null pointer excepetion during the interpretation
-        * as there is problem with the way we give the scopes.
+        * as there is problem with the way we deal with scopes.
         * However, the second test will succeed as we are able to change correctly the attribute
         * values from outside the object.
         * */
@@ -460,6 +470,111 @@ public final class InterpreterTests extends TestFixture {
             "myBox#width  = 2\n " +
             "return myBox#height * myBox#width";
         check(input, 4L);
+    }
+
+    /*
+    * Same tests as the one of the structs but on box types
+    * */
+    @Test public void testTypeAsValuesForBoxes () {
+        rule = grammar.root;
+
+        check("box S{} ; return \"\"+ S", "S");
+        check("box S{} ; var type: Type = S ; return \"\"+ type", "S");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // The following tests are the one that passes the grammar
+
+    @Test public void testBoxSimpleCase()
+    {
+        rule = grammar.root;
+
+        String input = "" +
+            "box Car {\n" +
+            "   attr max_speed: Int\n" +
+            "   meth get_max_speed(): Int {\n" +
+            "       return max_speed\n" +
+            "   }\n" +
+            "   meth set_max_speed(speed: Int) {\n" +
+            "       max_speed = speed\n" +
+            "   }\n" +
+            "}" +
+            "var car: Car = create Car()\n";
+        // The following test succeed, but actually this is not what we want!
+        // The returned value should obviously be an Int and not an AttributeDeclarationNode.
+        check(input + "return car#max_speed", new AttributeDeclarationNode(null, "max_speed", new SimpleTypeNode(null, "Int")));
+        check(input + "return car#get_max_speed()", new AttributeDeclarationNode(null, "max_speed", new SimpleTypeNode(null, "Int")));
+    }
+
+    /*
+    * The first version won't work because of the scope again, however the second one does exactly
+    * the same and returns properly.
+    * */
+    @Test public void testMixTwoBoxes()
+    {
+        rule = grammar.root;
+
+        String input = "" +
+            "box Car {\n" +
+            "   attr max_speed: Int\n" +
+            "   meth get_max_speed(): Int {\n" +
+            "       return max_speed\n" +
+            "   }\n" +
+            "}\n" +
+            "box Bus {\n" +
+            "   attr max_speed: Int\n" +
+            "   meth set_max_speed(speed: Int) {\n" +
+            "       max_speed = speed\n" +
+            "   }\n" +
+            "}\n" +
+            "var bus: Bus = create Bus()\n" +
+            "var car: Car = create Car()\n" +
+            "car#max_speed = 150" +
+            "bus#set_max_speed(car#get_max_speed()/2)" +
+            "return bus#max_speed";
+
+        checkThrows(input, InterpreterException.class);
+
+        input = "" +
+            "box Car {\n" +
+            "   attr max_speed: Int\n" +
+            "   meth get_max_speed(): Int {\n" +
+            "       return max_speed\n" +
+            "   }\n" +
+            "}\n" +
+            "box Bus {\n" +
+            // We chose here to put Float type, it would also succeed with Int
+            "   attr max_speed: Float\n" +
+            "   meth set_max_speed(speed: Float) {\n" +
+            "       max_speed = speed\n" +
+            "   }\n" +
+            "}\n" +
+            "var bus: Bus = create Bus()\n" +
+            "var car: Car = create Car()\n" +
+            "car#max_speed = 150" +
+            "bus#max_speed = car#max_speed/2" +
+            "return bus#max_speed";
+
+        check(input, 75L);
+    }
+
+    @Test public void testBoxAsArrays()
+    {
+        rule = grammar.root;
+
+        String input = "" +
+            "box Box {\n" +
+            "   attr value: Int\n" +
+            "}\n" +
+            "var b1: Box = create Box()\n" +
+            "var b2: Box = create Box()\n" +
+            "var b3: Box = create Box()\n" +
+            "var boxes: Box[] = [b1, b2, b3]\n" +
+            "boxes[1]#value = 10\n" +
+            "boxes[2]#value = 54\n" +
+            "return boxes[1]#value";
+
+        check(input, 10L);
     }
 
     // ---------------------------------------------------------------------------------------------

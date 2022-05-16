@@ -144,6 +144,7 @@ public final class SemanticAnalysis
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
         walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
+        walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
         walker.register(MethodDeclarationNode.class,    POST_VISIT, analysis::popScope);
         walker.register(BoxDeclarationNode.class,       POST_VISIT, analysis::popScope);
 
@@ -699,7 +700,6 @@ public final class SemanticAnalysis
         R.rule()
             .by(r -> {
                 // type declarations may occur after use
-//                System.out.println(scope + " " + node.name);
                 DeclarationContext ctx = scope.lookup(node.name);
                 DeclarationNode decl = ctx == null ? null : ctx.declaration;
 

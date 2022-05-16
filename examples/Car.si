@@ -1,31 +1,23 @@
-class Car {
-    var brand: String
-    var max_speed: Int
-    var test: Bool
+box Car {
+    attr brand: String
+    attr max_speed: Int
+    attr sold: Bool
 
-    meth set_max_speed(speed: Int) {
-        max_speed = speed
-    }
-
-    meth get_max_speed(): Int {
-        return max_speed
-    }
-
-    meth set_brand(name: String) {
-        brand = name
-    }
-
-    meth get_brand(): String {
-        return brand
+    meth get_boost_max_speed(speed: Int): Float {
+        return speed * 1.5
     }
 }
 var brand: String = "Ferrari"
-var max_speed: Int = 350
+var max_speed: Int = 280
 
-var my_car: Car = create Car()
+var ferrari: Car = create Car()
 
-my_car.set_max_speed(max_speed)
-my_car.set_brand(brand)
+ferrari#brand = brand
+ferrari#max_speed = max_speed
+ferrari#sold = true
 
-print(my_car.get_brand())
-print("" + my_car.get_max_speed())
+var boosted_speed: Float = ferrari#get_boost_max_speed(ferrari#max_speed)
+if ferrari#sold == true
+    print("The " + ferrari#brand + " is sold! Its boosted speed is " + boosted_speed + " kmh")
+else
+    print("The " + ferrari#brand + " is available! Its boosted speed is " + boosted_speed + " kmh")
