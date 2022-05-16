@@ -22,7 +22,8 @@ public final class Test
 
         // Set the file you want to try here
         //String file = "Car.si";
-        String file = "boxArrays.si";
+        String file = "BoxInFunction.si";
+//        String file = "boxArrays.si";
 
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);

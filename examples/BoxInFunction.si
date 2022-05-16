@@ -1,0 +1,19 @@
+box Printer {
+    attr name: String
+    meth printText(text: String) {
+        print(text)
+    }
+}
+
+fun printTexts(texts: String[], printer: Printer) {
+    print("The following test will be printed by the: " + printer#name)
+    var i: Int = 0
+    while i < texts.length {
+        printer#printText(texts[i])
+        i = i + 1
+    }
+}
+
+var printer: Printer = create Printer()
+printer#name = "Mega powerful printer V8"
+printTexts(["This", "works", "!", ""], printer)
